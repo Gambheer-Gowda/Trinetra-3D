@@ -179,7 +179,7 @@ app.post('/api/upload', upload.fields([
       flightProfile: {
         type: "Single-Pass Linear Oblique",
         speedMps: 14.0,
-        targetAltitudeAGL: parseFloat(altitudeMeters) || 45.0,
+        targetAltitudeAGL: parseFloat(altitudeMeters) || 100.0,
         cameraPitchDeg: parseFloat(gimbalPitchDeg) || -45.0,
         totalPassDurationSec: 25,
         groundSampleDistanceCm: 2.0,

@@ -85,7 +85,7 @@ export default function App() {
       reconstructPointCloudFromVideo(
         currentMission.videoMeta.videoUrl,
         {
-          altitude: currentMission.flightProfile?.targetAltitudeAGL || 45,
+          altitude: currentMission.flightProfile?.targetAltitudeAGL || 100,
           pitch: currentMission.flightProfile?.cameraPitchDeg || -42,
           missionId: currentMission.id,
           numKeyframes: 18
@@ -136,6 +136,7 @@ export default function App() {
   const handleUploadSuccess = (newMission) => {
     setMissions(prev => [newMission, ...prev]);
     setCurrentMission(newMission);
+    setLayoutMode('cockpit');
     setActiveTab('pipeline');
   };
 

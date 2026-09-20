@@ -16,7 +16,7 @@ export default function UploadModal({ isOpen, onClose, onUploadSuccess }) {
   const [telemetryFile, setTelemetryFile] = useState(null);
   const [title, setTitle] = useState('');
   const [locationName, setLocationName] = useState('Sector Flight Corridor Alpha');
-  const [altitudeMeters, setAltitudeMeters] = useState(50);
+  const [altitudeMeters, setAltitudeMeters] = useState(100);
   const [gimbalPitchDeg, setGimbalPitchDeg] = useState(-45);
   const [droneModel, setDroneModel] = useState('DJI Mavic 3 Enterprise (RTK)');
   const [isUploading, setIsUploading] = useState(false);

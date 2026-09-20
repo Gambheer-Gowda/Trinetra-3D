@@ -1,3 +1,4 @@
+
 /**
  * 3D Point Cloud & Mesh Reconstruction Engine
  * SIH26158: Single-Pass Drone Video to Accurate 3D Model Generation
@@ -24,7 +25,7 @@ function generateMissionPointCloud(missionId) {
   // Configuration based on mission
   let terrainWidth = 120;
   let terrainDepth = 140;
-  let droneStartAltitude = 45;
+  let droneStartAltitude = 100;
   let droneSpeed = 15;
   let flightLength = 100;
   let numKeyframes = 20;
@@ -72,7 +73,7 @@ function generateMissionPointCloud(missionId) {
       for (let y = -terrainDepth / 2; y <= terrainDepth / 2; y += step) {
         // Subtle terrain topography
         let z = Math.sin(x * 0.04) * 0.8 + Math.cos(y * 0.03) * 0.9;
-        
+
         // Base grass color
         let r = 0.29 + seededRandom(seed++) * 0.05;
         let g = 0.38 + seededRandom(seed++) * 0.06;

@@ -68,7 +68,7 @@ function parseSrtTelemetry(srtContent) {
         timestamp: timeSeconds,
         latitude: parseFloat(latMatch[1]),
         longitude: parseFloat(lonMatch[1]),
-        altitudeMeters: altMatch ? parseFloat(altMatch[1]) : 50.0,
+        altitudeMeters: altMatch ? parseFloat(altMatch[1]) : 100.0,
         pitchDeg: pitchMatch ? parseFloat(pitchMatch[1]) : -45.0,
         yawDeg: yawMatch ? parseFloat(yawMatch[1]) : 90.0,
         rollDeg: rollMatch ? parseFloat(rollMatch[1]) : 0.0,

@@ -125,7 +125,7 @@ export default function VideoTelemetryPlayer({
   const activeIndex = trajectory.length > 0 ? Math.min(trajectory.length - 1, Math.floor(droneProgress * (trajectory.length - 1))) : 0;
   const currentKeyframe = trajectory[activeIndex] || {
     timestamp: currentTime.toFixed(2),
-    position: { x: 0, y: 0, z: mission?.flightProfile?.targetAltitudeAGL || 45 },
+    position: { x: 0, y: 0, z: mission?.flightProfile?.targetAltitudeAGL || 100 },
     rotation: { yaw: 0, pitch: mission?.flightProfile?.cameraPitchDeg || -42, roll: 0 },
     laplacianBlurScore: 1040,
     dynamicObjectsMasked: 2

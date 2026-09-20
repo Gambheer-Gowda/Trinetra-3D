@@ -39,7 +39,7 @@ export async function reconstructPointCloudFromVideo(videoUrl, options = {}, onP
         canvas.width = sampleW;
         canvas.height = sampleH;
 
-        const flightAlt = options.altitude || 45.0;
+        const flightAlt = options.altitude || 100.0;
         const gimbalPitch = options.pitch || -42.0;
         const flightLength = 110.0;
 
