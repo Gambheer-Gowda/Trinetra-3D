@@ -89,11 +89,11 @@ export default function UploadModal({ isOpen, onClose, onUploadSuccess }) {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/[0.08] bg-zinc-900/50">
           <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
-              <Upload className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-cyan-950/60 border border-cyan-500/30 p-1 flex items-center justify-center shadow-[0_0_10px_rgba(6,182,212,0.25)]">
+              <img src="/trinetra_emblem_dark.png" alt="Trinetra" className="w-full h-full object-contain" />
             </div>
             <div>
-              <h3 className="text-xs font-semibold text-white tracking-tight">Upload UAV Single-Pass Footage</h3>
+              <h3 className="text-xs font-semibold text-white tracking-tight">TRINETRA &middot; Upload UAV Footage</h3>
               <p className="text-[10px] text-zinc-400">Stream video & inertial metadata for 3D reconstruction</p>
             </div>
           </div>

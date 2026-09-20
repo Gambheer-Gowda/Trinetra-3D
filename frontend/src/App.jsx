@@ -155,16 +155,19 @@ export default function App() {
       </div>
 
       {/* 21st.dev Refined Header Bar */}
-      <header className="h-[54px] border-b border-white/[0.08] bg-zinc-950/70 backdrop-blur-xl px-5 flex items-center justify-between z-30 shrink-0">
+      <header className="h-[58px] border-b border-white/[0.08] bg-zinc-950/80 backdrop-blur-xl px-5 flex items-center justify-between z-30 shrink-0">
         {/* Left: Branding & Organization Badge */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-400 via-indigo-500 to-violet-600 text-white shadow-md shadow-cyan-500/20">
-            <Radar className="w-4 h-4 animate-spin" style={{ animationDuration: '8s' }} />
+          <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-cyan-950/50 border border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.3)] p-1 overflow-hidden group hover:border-cyan-400/80 transition-all duration-200">
+            <img 
+              src="/trinetra_emblem_dark.png" 
+              alt="Trinetra" 
+              className="w-full h-full object-contain filter drop-shadow-[0_0_6px_rgba(6,182,212,0.6)] group-hover:scale-110 transition-transform duration-200" 
+            />
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-bold tracking-tight text-sm text-white">Trinetra</span>
-            <span className="text-xs font-semibold bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">3D</span>
-            <span className="text-[11px] px-2.5 py-0.5 rounded-full font-medium bg-white/[0.06] text-zinc-300 border border-white/10 tracking-wide">
+            <span className="font-extrabold tracking-wider text-base text-white font-mono">TRINETRA</span>
+            <span className="text-[11px] px-2.5 py-0.5 rounded-full font-medium bg-white/[0.06] text-zinc-300 border border-white/10 tracking-wide ml-1 hidden sm:inline-block">
               SIH26158
             </span>
             <span className="text-[11px] px-2 py-0.5 rounded-full font-medium bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 hidden md:inline-flex items-center gap-1">

@@ -17,8 +17,8 @@ interface FeatureCardProps {
 const CARDS: FeatureCardProps[] = [
   {
     title: "Drone Footage → 3D Reconstruction",
-    tagline: "Transform aerial video into a 3D model",
-    image: "/drone_master_photo.jpg",
+    tagline: "Transform aerial video into a metrically scaled 3D model",
+    image: "/drone_recon_scan.jpg",
     badge: "Optical Ingestion",
     colorAccent: "group-hover:border-cyan-500/50 group-hover:shadow-[0_12px_30px_-10px_rgba(6,182,212,0.3)]",
     badgeColor: "bg-cyan-500/10 text-cyan-300 border-cyan-500/20",
@@ -27,7 +27,7 @@ const CARDS: FeatureCardProps[] = [
   {
     title: "Geospatial Intelligence",
     tagline: "Generate measurable and georeferenced spatial data",
-    image: "/photogrammetric_reference.png",
+    image: "/geospatial_dem_intel.jpg",
     badge: "WGS84 / UTM",
     colorAccent: "group-hover:border-emerald-500/50 group-hover:shadow-[0_12px_30px_-10px_rgba(16,185,129,0.3)]",
     badgeColor: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
@@ -36,7 +36,7 @@ const CARDS: FeatureCardProps[] = [
   {
     title: "Digital Twin & Analysis",
     tagline: "Explore, measure, and analyze the reconstructed environment",
-    image: "/photogrammetric_model_alpha.png",
+    image: "/digital_twin_cad.jpg",
     badge: "3D CAD & Volumetrics",
     colorAccent: "group-hover:border-purple-500/50 group-hover:shadow-[0_12px_30px_-10px_rgba(168,85,247,0.3)]",
     badgeColor: "bg-purple-500/10 text-purple-300 border-purple-500/20",
