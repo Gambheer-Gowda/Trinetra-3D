@@ -13,7 +13,6 @@ import {
   Terminal, 
   Crosshair,
   Compass,
-  Sparkles,
   ExternalLink,
   Activity,
   FileText,
@@ -28,7 +27,6 @@ import PipelineMonitor from './components/PipelineMonitor';
 import TacticalAnalytics from './components/TacticalAnalytics';
 import ExportModal from './components/ExportModal';
 import UploadModal from './components/UploadModal';
-import BlackHole from '@/components/ui/black-hole';
 import { DotPattern } from '@/components/ui/dot-pattern';
 import FeatureCardsSection from '@/components/ui/feature-cards-section';
 import { reconstructPointCloudFromVideo } from './utils/videoReconstruction';
@@ -37,28 +35,44 @@ export default function App() {
   const [missions, setMissions] = useState([]);
   const [currentMission, setCurrentMission] = useState(null);
   const [pointCloudData, setPointCloudData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Synchronized state across 3D viewport, Video HUD, and 2D GIS Map
   const [droneProgress, setDroneProgress] = useState(0.2); // 0 to 1 along flight path
   const [selectedKeyframe, setSelectedKeyframe] = useState(0);
   const [activeTab, setActiveTab] = useState('pipeline'); // 'pipeline', 'intelligence', 'specs'
-  const [layoutMode, setLayoutMode] = useState('cockpit'); // 'cockpit', 'full3d', 'dual_gis'
+  const [layoutMode, setLayoutMode] = useState('overview'); // 'overview', 'cockpit', 'full3d', 'dual_gis'
   const [showExportModal, setShowExportModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
 
-  // Fetch initial missions
+  // Reset session and delete loaded video on page load / refresh
   useEffect(() => {
-    fetch('/api/missions')
-      .then(res => res.json())
-      .then(data => {
-        if (data.missions && data.missions.length > 0) {
-          setMissions(data.missions);
-          setCurrentMission(data.missions[0]);
-        }
+    // Tell backend to delete any existing uploaded videos & reset missions
+    fetch('/api/reset', { method: 'POST' })
+      .then(() => {
+        setMissions([]);
+        setCurrentMission(null);
+        setPointCloudData(null);
+        setLoading(false);
       })
-      .catch(err => console.error("Error loading missions:", err));
+      .catch(err => {
+        console.warn("Reset error:", err);
+        setMissions([]);
+        setCurrentMission(null);
+        setLoading(false);
+      });
+
+    const handleBeforeUnload = () => {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/reset');
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   // Fetch point cloud when current mission changes
@@ -163,18 +177,31 @@ export default function App() {
         <div className="flex items-center gap-3">
           {/* Mission Dropdown Pill */}
           <div className="relative">
-            <select
-              value={currentMission?.id || ''}
-              onChange={(e) => handleMissionChange(e.target.value)}
-              className="bg-zinc-900/80 hover:bg-zinc-900 text-zinc-200 text-xs rounded-full pl-3.5 pr-8 py-1.5 border border-white/10 focus:outline-none focus:border-cyan-400/70 cursor-pointer appearance-none font-medium max-w-[280px] truncate transition shadow-sm"
-            >
-              {missions.map(m => (
-                <option key={m.id} value={m.id}>
-                  {m.title}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            {missions.length > 0 ? (
+              <>
+                <select
+                  value={currentMission?.id || ''}
+                  onChange={(e) => handleMissionChange(e.target.value)}
+                  className="bg-zinc-900/80 hover:bg-zinc-900 text-zinc-200 text-xs rounded-full pl-3.5 pr-8 py-1.5 border border-white/10 focus:outline-none focus:border-cyan-400/70 cursor-pointer appearance-none font-medium max-w-[280px] truncate transition shadow-sm"
+                >
+                  {missions.map(m => (
+                    <option key={m.id} value={m.id}>
+                      {m.title}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </>
+            ) : (
+              <button
+                onClick={() => setShowUploadModal(true)}
+                className="bg-zinc-900/80 hover:bg-zinc-900 text-zinc-300 hover:text-white text-xs rounded-full px-3.5 py-1.5 border border-dashed border-white/20 flex items-center gap-1.5 transition cursor-pointer"
+                title="Click to upload UAV video"
+              >
+                <UploadCloud className="w-3.5 h-3.5 text-cyan-400" />
+                <span>No Footage Active &middot; Upload</span>
+              </button>
+            )}
           </div>
 
           {/* 21st.dev Segmented Pill Switcher */}
@@ -218,17 +245,6 @@ export default function App() {
               }`}
             >
               GIS Split
-            </button>
-            <button
-              onClick={() => setLayoutMode('blackhole')}
-              className={`px-3 py-1 rounded-full transition-all duration-150 cursor-pointer flex items-center gap-1.5 ${
-                layoutMode === 'blackhole'
-                  ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-zinc-950 font-semibold shadow-sm shadow-orange-500/20'
-                  : 'text-zinc-400 hover:text-white'
-              }`}
-            >
-              <Sparkles className="w-3 h-3" />
-              <span>Cosmos</span>
             </button>
           </div>
         </div>
@@ -282,27 +298,22 @@ export default function App() {
           <div className="w-full h-full rounded-2xl border border-white/[0.08] overflow-y-auto relative shadow-2xl bg-zinc-950/60 backdrop-blur-xl">
             <FeatureCardsSection
               onSelectFeature={(idx) => {
-                if (idx === 0) setLayoutMode('cockpit');
-                else if (idx === 1) setLayoutMode('dual_gis');
-                else if (idx === 2) setLayoutMode('full3d');
+                if (missions.length === 0) {
+                  setShowUploadModal(true);
+                } else {
+                  if (idx === 0) setLayoutMode('cockpit');
+                  else if (idx === 1) setLayoutMode('dual_gis');
+                  else if (idx === 2) setLayoutMode('full3d');
+                }
               }}
-              onLaunchPlatform={() => setLayoutMode('cockpit')}
+              onLaunchPlatform={() => {
+                if (missions.length === 0) {
+                  setShowUploadModal(true);
+                } else {
+                  setLayoutMode('cockpit');
+                }
+              }}
             />
-          </div>
-        ) : layoutMode === 'blackhole' ? (
-          /* Fullscreen Cosmic Black Hole WebGL Experience */
-          <div className="w-full h-full rounded-2xl border border-white/[0.08] overflow-hidden relative shadow-2xl bg-black">
-            <BlackHole />
-            {/* Overlay Glass Card */}
-            <div className="absolute bottom-6 left-6 max-w-sm p-4 rounded-2xl bg-zinc-950/80 backdrop-blur-xl border border-white/10 shadow-2xl text-xs font-sans pointer-events-auto">
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                <span className="font-semibold text-white tracking-tight">Kerr Black Hole & Accretion Disk</span>
-              </div>
-              <p className="text-[11px] text-zinc-400 leading-relaxed">
-                Relativistic raymarched gravitational lensing with Doppler beaming and Keplerian differential swirl. Move mouse for orbital parallax.
-              </p>
-            </div>
           </div>
         ) : (
           <>
@@ -318,6 +329,25 @@ export default function App() {
                     </div>
                     <span className="text-sm font-semibold tracking-tight text-white">Reconstructing 3D Digital Twin...</span>
                     <span className="text-xs text-zinc-400">Processing single-pass UAV frames & VIO telemetry</span>
+                  </div>
+                ) : !currentMission ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-950/90 p-6 text-center space-y-4">
+                    <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shadow-xl shadow-cyan-500/10">
+                      <UploadCloud className="w-8 h-8" />
+                    </div>
+                    <div className="max-w-md space-y-1.5">
+                      <h3 className="text-base font-semibold text-white tracking-tight">No Active Drone Stream</h3>
+                      <p className="text-xs text-zinc-400 leading-relaxed">
+                        Upload your single-pass UAV video (.mp4) and flight telemetry (.srt) to reconstruct the metrically accurate 3D model, synchronized HUD, and 2D GIS footprint.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowUploadModal(true)}
+                      className="px-5 py-2 rounded-full bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold shadow-lg shadow-white/10 active:scale-95 transition flex items-center gap-2 cursor-pointer"
+                    >
+                      <UploadCloud className="w-4 h-4 text-zinc-900" />
+                      <span>Upload Drone Footage</span>
+                    </button>
                   </div>
                 ) : (
                   <Viewport3D

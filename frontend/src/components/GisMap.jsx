@@ -91,14 +91,14 @@ export default function GisMap({ mission, droneProgress, onAssetClick }) {
       });
     }
 
-    // Dynamic Drone Marker
+    // Dynamic Drone Marker (Reverse Pass Orientation)
     const droneIcon = L.divIcon({
       className: 'drone-uav-marker',
       html: `
         <div class="relative flex items-center justify-center w-8 h-8">
           <div class="absolute w-8 h-8 rounded-full bg-cyan-400/20 animate-ping"></div>
           <div class="w-6 h-6 rounded-full bg-cyan-500 border-2 border-white flex items-center justify-center shadow-lg">
-            <svg class="w-3.5 h-3.5 text-black transform rotate-45" viewBox="0 0 24 24" fill="currentColor">
+            <svg class="w-3.5 h-3.5 text-black transform rotate-180" viewBox="0 0 24 24" fill="currentColor">
               <polygon points="12 2 19 21 12 17 5 21 12 2"/>
             </svg>
           </div>
@@ -108,7 +108,7 @@ export default function GisMap({ mission, droneProgress, onAssetClick }) {
       iconAnchor: [16, 16]
     });
 
-    const droneMarker = L.marker([startLat, lon], { icon: droneIcon }).addTo(map);
+    const droneMarker = L.marker([startLat + flightLatSpan, lon], { icon: droneIcon }).addTo(map);
     droneMarkerRef.current = droneMarker;
 
     return () => {
@@ -116,14 +116,15 @@ export default function GisMap({ mission, droneProgress, onAssetClick }) {
     };
   }, [mission]);
 
-  // Update Drone Marker Position on scrub
+  // Update Drone Marker Position on scrub (Reverse Pass)
   useEffect(() => {
     if (!droneMarkerRef.current || !mission) return;
     const lat = mission.coordinates?.lat || 34.15243;
     const lon = mission.coordinates?.lon || 77.57721;
     const flightLatSpan = 0.0012;
     const startLat = lat - flightLatSpan / 2;
-    const progress = droneProgress !== undefined ? droneProgress : 0;
+    const rawProgress = droneProgress !== undefined ? droneProgress : 0;
+    const progress = 1.0 - rawProgress;
 
     const currentLat = startLat + progress * flightLatSpan;
     const currentLon = lon + Math.sin(progress * Math.PI) * 0.0001;

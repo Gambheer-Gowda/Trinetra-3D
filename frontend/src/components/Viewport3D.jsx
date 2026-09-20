@@ -12,7 +12,6 @@ import {
   Focus,
   X,
   Target,
-  Sparkles,
   Play,
   Pause,
   ArrowUp,
@@ -128,17 +127,85 @@ export default function Viewport3D({
     scene.add(objectsGroup);
     objectsGroupRef.current = objectsGroup;
 
+    // Tactical Quadcopter UAV 3D Model with Front Camera Gimbal & Navigation Lights
     const droneGroup = new THREE.Group();
-    const bodyGeo = new THREE.CylinderGeometry(0.8, 1.2, 0.5, 6);
-    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, metalness: 0.8, roughness: 0.2 });
-    const droneBody = new THREE.Mesh(bodyGeo, bodyMat);
-    droneBody.rotation.x = Math.PI / 2;
+
+    // 1. Aerodynamic Carbon Chassis
+    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.85, roughness: 0.25 });
+    const droneBody = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.2, 0.45), bodyMat);
     droneGroup.add(droneBody);
 
-    const beaconGeo = new THREE.SphereGeometry(0.4, 8, 8);
-    const beaconMat = new THREE.MeshBasicMaterial({ color: 0xff0055 });
-    const beacon = new THREE.Mesh(beaconGeo, beaconMat);
-    droneGroup.add(beacon);
+    const coverMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, metalness: 0.6, roughness: 0.2 });
+    const cover = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.4, 0.15), coverMat);
+    cover.position.set(0, 0, 0.25);
+    droneGroup.add(cover);
+
+    // 2. 4 Quadcopter Arms & Propeller Rotors (X-Geometry)
+    const armMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.3 });
+    const rotorMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.55 });
+    
+    // Front-Right Arm & Rotor (+X, +Y)
+    const arm1 = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 2.0), armMat);
+    arm1.position.set(1.1, 1.1, 0);
+    arm1.rotation.z = -Math.PI / 4;
+    arm1.rotation.x = Math.PI / 2;
+    droneGroup.add(arm1);
+    const r1 = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 0.04, 16), rotorMat);
+    r1.position.set(1.8, 1.8, 0.15);
+    r1.rotation.x = Math.PI / 2;
+    droneGroup.add(r1);
+
+    // Front-Left Arm & Rotor (-X, +Y)
+    const arm2 = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 2.0), armMat);
+    arm2.position.set(-1.1, 1.1, 0);
+    arm2.rotation.z = Math.PI / 4;
+    arm2.rotation.x = Math.PI / 2;
+    droneGroup.add(arm2);
+    const r2 = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 0.04, 16), rotorMat);
+    r2.position.set(-1.8, 1.8, 0.15);
+    r2.rotation.x = Math.PI / 2;
+    droneGroup.add(r2);
+
+    // Rear-Right Arm & Rotor (+X, -Y)
+    const arm3 = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 2.0), armMat);
+    arm3.position.set(1.1, -1.1, 0);
+    arm3.rotation.z = Math.PI / 4;
+    arm3.rotation.x = Math.PI / 2;
+    droneGroup.add(arm3);
+    const r3 = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 0.04, 16), rotorMat);
+    r3.position.set(1.8, -1.8, 0.15);
+    r3.rotation.x = Math.PI / 2;
+    droneGroup.add(r3);
+
+    // Rear-Left Arm & Rotor (-X, -Y)
+    const arm4 = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 2.0), armMat);
+    arm4.position.set(-1.1, -1.1, 0);
+    arm4.rotation.z = -Math.PI / 4;
+    arm4.rotation.x = Math.PI / 2;
+    droneGroup.add(arm4);
+    const r4 = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 0.04, 16), rotorMat);
+    r4.position.set(-1.8, -1.8, 0.15);
+    r4.rotation.x = Math.PI / 2;
+    droneGroup.add(r4);
+
+    // 3. Front Optical Gimbal Camera Pod (Aimed Forward and Tilted Down)
+    const gimbalPod = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.9, roughness: 0.1 }));
+    gimbalPod.position.set(0, 1.25, -0.2);
+    const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.25, 16), new THREE.MeshStandardMaterial({ color: 0x00f0ff, roughness: 0.05 }));
+    lens.position.set(0, 0.2, 0);
+    lens.rotation.x = Math.PI / 2;
+    gimbalPod.add(lens);
+    droneGroup.add(gimbalPod);
+
+    // 4. Navigation LED Beacons (Front Green, Rear Red)
+    const navGreen = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), new THREE.MeshBasicMaterial({ color: 0x10b981 }));
+    navGreen.position.set(0, 1.4, 0.1);
+    droneGroup.add(navGreen);
+
+    const navRed = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+    navRed.position.set(0, -1.3, 0.1);
+    droneGroup.add(navRed);
+
     droneGroup.visible = false;
     scene.add(droneGroup);
     droneMeshRef.current = droneGroup;
@@ -427,7 +494,7 @@ export default function Viewport3D({
       const frustumLine = new THREE.LineSegments(frustumGeo, frustumMat);
       frustumLine.position.copy(pos);
       frustumLine.rotation.z = (kf.rotation.yaw || 0) * (Math.PI / 180);
-      frustumLine.rotation.x = ((kf.rotation.pitch || -42) + 90) * (Math.PI / 180);
+      frustumLine.rotation.x = (kf.rotation.pitch || -42) * (Math.PI / 180);
 
       group.add(frustumLine);
     });
@@ -442,13 +509,14 @@ export default function Viewport3D({
     }
   }, [pointCloudData, selectedKeyframe, showFlightPath]);
 
-  // Update UAV position on scrub
+  // Update UAV position on scrub (Permanent Reverse Pass along drone angle)
   useEffect(() => {
     if (!droneMeshRef.current || !pointCloudData?.cameraTrajectory) return;
     const traj = pointCloudData.cameraTrajectory;
     if (traj.length === 0) return;
 
-    const progress = droneProgress !== undefined ? droneProgress : 0;
+    const rawProgress = droneProgress !== undefined ? droneProgress : 0;
+    const progress = 1.0 - rawProgress;
     const idxFloat = progress * (traj.length - 1);
     const idx0 = Math.floor(idxFloat);
     const idx1 = Math.min(traj.length - 1, idx0 + 1);
@@ -462,11 +530,17 @@ export default function Viewport3D({
     const currentZ = p0.z + (p1.z - p0.z) * frac;
 
     droneMeshRef.current.position.set(currentX, currentY, currentZ);
+    const dirX = p1.x - p0.x;
+    const dirY = p1.y - p0.y;
+    if (Math.abs(dirX) > 0.0001 || Math.abs(dirY) > 0.0001) {
+      const heading = Math.atan2(dirX, dirY);
+      droneMeshRef.current.rotation.z = -heading + Math.PI;
+    }
     droneMeshRef.current.visible = true;
 
     if (viewPreset === 'fpv' && cameraRef.current && controlsRef.current) {
       cameraRef.current.position.set(currentX, currentY, currentZ);
-      controlsRef.current.target.set(currentX, currentY + 30, currentZ - 25);
+      controlsRef.current.target.set(currentX, currentY - 30, currentZ - 25);
     }
   }, [droneProgress, pointCloudData, viewPreset]);
 

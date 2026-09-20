@@ -44,55 +44,41 @@ const upload = multer({
   limits: { fileSize: 500 * 1024 * 1024 } // Up to 500MB video files
 });
 
-// Automatically register existing uploaded drone videos from disk into missions
-try {
-  const existingFiles = fs.readdirSync(uploadDir);
-  const realVideos = existingFiles.filter(f => f.endsWith('.mp4') && fs.statSync(path.join(uploadDir, f)).size > 1000);
-  realVideos.forEach((file, idx) => {
-    const stats = fs.statSync(path.join(uploadDir, file));
-    const missionId = 'uploaded_' + path.basename(file, '.mp4');
-    missions.unshift({
-      id: missionId,
-      title: `Uploaded UAV Footage (${(stats.size / (1024 * 1024)).toFixed(1)} MB)`,
-      organization: "Authentic UAV Flight Operations",
-      classification: "USER UPLOADED STREAM",
-      date: new Date(stats.mtime).toISOString().split('T')[0],
-      description: `User-uploaded authentic drone video: ${file}`,
-      locationName: "Tactical Survey Grid",
-      coordinates: { lat: 34.15243, lon: 77.57721, elevationMeters: 1200.0 },
-      flightProfile: {
-        type: "Single-Pass Linear Oblique",
-        speedMps: 14.0,
-        targetAltitudeAGL: 45.0,
-        cameraPitchDeg: -45.0,
-        totalPassDurationSec: 24,
-        groundSampleDistanceCm: 2.0,
-        overlapForwardPct: 76,
-        reconstructionAccuracyRMSE: "2.4 cm",
-        dynamicFilteringScore: "98.7% dynamic noise rejected"
-      },
-      tacticalAssets: [
-        { id: "U1", name: "Primary Flight Survey Target", type: "Target Asset", x: 10.0, y: 15.0, z: 5.0, status: "Reconstructed" }
-      ],
-      videoMeta: {
-        resolution: "1920x1080 Full HD",
-        fps: 30,
-        durationSec: 24,
-        sensor: "UAV Tactical 4K Payload",
-        focalLengthMm: 24,
-        videoUrl: `/uploads/${file}`,
-        filename: file
-      }
-    });
-  });
-  console.log(`[STARTUP] Registered ${realVideos.length} user-uploaded drone video(s) into mission catalog.`);
-} catch (scanErr) {
-  console.warn("Could not scan uploads folder on startup:", scanErr);
-}
-
 // In-memory cache for generated point clouds to provide lightning-fast response times
 const pointCloudCache = {};
 const activeJobs = {};
+
+// Clean up all loaded videos and reset session
+function clearUploadedSessions() {
+  missions.length = 0;
+  for (const k of Object.keys(pointCloudCache)) {
+    delete pointCloudCache[k];
+  }
+  for (const k of Object.keys(activeJobs)) {
+    delete activeJobs[k];
+  }
+  try {
+    if (fs.existsSync(uploadDir)) {
+      const files = fs.readdirSync(uploadDir);
+      for (const file of files) {
+        try {
+          fs.unlinkSync(path.join(uploadDir, file));
+        } catch (e) {}
+      }
+    }
+  } catch (err) {
+    console.warn("Could not clean uploadDir:", err);
+  }
+}
+
+// Clean on startup
+clearUploadedSessions();
+
+// Reset endpoint: called whenever user refreshes or reloads the browser
+app.all('/api/reset', (req, res) => {
+  clearUploadedSessions();
+  res.json({ success: true, message: "Session reset and loaded footage deleted" });
+});
 
 // Health check
 app.get('/api/health', (req, res) => {

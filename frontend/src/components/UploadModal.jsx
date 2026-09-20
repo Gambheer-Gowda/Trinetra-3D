@@ -5,7 +5,6 @@ import {
   FileVideo, 
   FileCode, 
   Sliders, 
-  Sparkles, 
   CheckCircle2, 
   AlertCircle,
   Compass,
@@ -84,19 +83,6 @@ export default function UploadModal({ isOpen, onClose, onUploadSuccess }) {
     }
   };
 
-  const handleUsePresetDemo = () => {
-    setTitle("Tactical Perimeter UAV Single-Pass");
-    setLocationName("Outpost Defense Grid - North Sector");
-    setAltitudeMeters(45);
-    setGimbalPitchDeg(-42);
-    setDroneModel("Skydio X2 Color/Thermal Oblique");
-
-    // Synthetic video blob
-    const sampleBlob = new Blob(["sample_drone_stream_bytes"], { type: "video/mp4" });
-    const sampleFile = new File([sampleBlob], "tactical_perimeter_singlepass_4k.mp4", { type: "video/mp4" });
-    setVideoFile(sampleFile);
-  };
-
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4 font-sans select-none animate-in fade-in duration-200">
       <div className="bg-zinc-950/95 border border-white/10 w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -121,22 +107,6 @@ export default function UploadModal({ isOpen, onClose, onUploadSuccess }) {
 
         {/* Scrollable Form Body */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto">
-          {/* Quick Demo Pre-fill Banner */}
-          <div className="bg-cyan-500/10 border border-cyan-500/20 p-3 rounded-xl flex items-center justify-between">
-            <div className="text-xs text-zinc-300">
-              <span className="font-semibold block text-cyan-300">Quick Test Flight</span>
-              <span className="text-[11px] text-zinc-400">Simulate single-pass tactical video payload</span>
-            </div>
-            <button
-              type="button"
-              onClick={handleUsePresetDemo}
-              className="px-3 py-1.5 text-xs bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/30 rounded-full font-medium transition flex items-center gap-1.5 cursor-pointer"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Load Preset</span>
-            </button>
-          </div>
-
           {/* 1. Video Drop / Select Box */}
           <div>
             <label className="text-xs font-medium text-zinc-300 block mb-1.5 flex items-center justify-between">
