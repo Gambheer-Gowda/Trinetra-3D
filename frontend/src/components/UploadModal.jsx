@@ -59,7 +59,7 @@ export default function UploadModal({ isOpen, onClose, onUploadSuccess }) {
 
     try {
       setUploadProgress(60);
-      const res = await fetch('/api/upload', {
+      const res = await fetch('https://trinetra-3d-7ai3.onrender.com/api/upload', {
         method: 'POST',
         body: formData
       });
